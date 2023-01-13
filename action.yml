@@ -17,7 +17,7 @@ inputs:
     default: '1'
   workflow-id:
     description: 'the id of the workflow. if this is passed, it will also check if this has been run in the <time period>'
-    required: 'false'
+    required: false
 outputs:
   recent_commit:
     description: 'Returns true if there was a commit within the specified <time-period>, false if there was not'
@@ -39,7 +39,7 @@ runs:
         [ $commit_timestamp -gt $time_ago ] && echo "recent_commit=true" >> $GITHUB_OUTPUT
     
     - id: check_workflow
-      if: ${{ inputs.workflow-id }} != null
+      if: ${{ inputs.workflow-id }} != ''
       name: check if workflow had a run in the last time period
       shell: bash
       run: |
