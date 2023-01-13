@@ -1,4 +1,4 @@
-# green-ci-branch-activity-checker
+# green-ci-activity-checker
 
 This is a Github Action for checking whether a branch has had commits to it in the last `time-period`  
 It can also take a workflow-id to check whether it has been run in the last `time-period`  
