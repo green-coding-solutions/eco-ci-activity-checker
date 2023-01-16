@@ -43,7 +43,7 @@ runs:
       name: check if workflow had a run in the last time period
       shell: bash
       run: |
-        api_response = $(curl -s https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/${{ inputs.workflow-id }}/runs)
+        api_response=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/${{ inputs.workflow-id }}/runs)
         dateoflastrun=$($api_response | jq -r '.["workflow_runs"][0]["run_started_at"]')
         state=$($api_response | jq -r '.["workflow_runs"][0]["conclusion"]')        
         lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
