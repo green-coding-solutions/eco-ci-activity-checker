@@ -39,6 +39,7 @@ runs:
         [ $commit_timestamp -gt $time_ago ] && echo "recent_commit=true" >> $GITHUB_OUTPUT
     
     - id: check_workflow
+      continue-on-error: true
       if: inputs.workflow-id != ''
       name: check if workflow had a run in the last time period
       shell: bash
