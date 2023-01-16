@@ -1,4 +1,4 @@
-name: 'Green CI Activity Checker'
+name: 'Eco CI Activity Checker'
 description: 'check if there has been a commit in the specificed repo/branch within the specified time period and write to github output'
 inputs:
   repo:
