@@ -44,8 +44,8 @@ runs:
       shell: bash
       run: |
         api_response=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/${{ inputs.workflow-id }}/runs)
-        dateoflastrun=$($api_response | jq -r '.["workflow_runs"][0]["run_started_at"]')
-        state=$($api_response | jq -r '.["workflow_runs"][0]["conclusion"]')        
-        lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
-        time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
-        [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ] && echo "recent_workflow_run=true" >> $GITHUB_OUTPUT
+#        dateoflastrun=$($api_response | jq -r '.["workflow_runs"][0]["run_started_at"]')
+#        state=$($api_response | jq -r '.["workflow_runs"][0]["conclusion"]')        
+#        lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
+#        time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
+#        [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ] && echo "recent_workflow_run=true" >> $GITHUB_OUTPUT
