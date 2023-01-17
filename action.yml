@@ -32,7 +32,7 @@ runs:
   using: 'composite'
   steps:
     - id: check_commits
-      continue-on-error: true
+#      continue-on-error: true
       name: check if there was a commit in the last time period
       shell: bash
       run: |
@@ -42,7 +42,7 @@ runs:
         [ $commit_timestamp -gt $time_ago ] && echo "recent_commit=true" >> $GITHUB_OUTPUT
 
     - id: check_workflow
-      continue-on-error: true
+#      continue-on-error: true
       if: inputs.workflow-id != ''
       name: check if workflow had a run in the last time period
       shell: bash
