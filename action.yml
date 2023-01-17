@@ -52,4 +52,5 @@ runs:
         state=$(echo $api_response | jq -r '.["workflow_runs"][1]["conclusion"]')
         lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
         time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
-        [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ] && echo "recent_workflow_run=true" >> $GITHUB_OUTPUT
+        if [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ]; then echo "recent_workflow_run=true" >> $GITHUB_OUTPUT; fi
+        if [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ]; then false; fi
