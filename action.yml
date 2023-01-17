@@ -21,13 +21,13 @@ inputs:
 outputs:
   should_run:
     description: 
-    value: ${{ steps.check_commits.outputs.recent_commit && !steps.check_commits.outputs.recent_workflow_run }}
+    value: ${{ steps.check_commits.outputs.recent_commit && !steps.check_workflow.outputs.recent_workflow_run }}
   recent_commit:
     description: 'Returns true if there was a commit within the specified <time-period>, false if there was not'
     value: ${{ steps.check_commits.outputs.recent_commit }}
   recent_workflow_run:
     description: 'Returns true if the specified workflow-id has been succesfully run in the last <time-period>'
-    value: ${{ steps.check_commits.outputs.recent_workflow_run }}
+    value: ${{ steps.check_workflow.outputs.recent_workflow_run }}
 runs:
   using: 'composite'
   steps:
