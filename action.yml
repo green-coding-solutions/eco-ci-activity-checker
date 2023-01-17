@@ -39,8 +39,8 @@ runs:
         dateofcommit=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/commits/${{ inputs.branch }} | jq -r '.commit.author.date')
         commit_timestamp=$(date --date "$dateofcommit" +'%s')
         time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
-        [ $commit_timestamp -gt $time_ago ] && echo "recent_commit=true" >> $GITHUB_OUTPUT
-    
+        if [ $commit_timestamp -gt $time_ago ]; then echo "recent_commit=true" >> $GITHUB_OUTPUT; fi    
+
     - id: check_workflow
       continue-on-error: true
       if: inputs.workflow-id != ''
@@ -52,4 +52,4 @@ runs:
         state=$(echo $api_response | jq -r '.["workflow_runs"][1]["conclusion"]')        
         lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
         time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
-        [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ] && echo "recent_workflow_run=true" >> $GITHUB_OUTPUT
+        if [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ]; then echo "recent_workflow_run=true" >> $GITHUB_OUTPUT; fi
