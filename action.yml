@@ -52,7 +52,6 @@ runs:
         echo $dateoflastrun
         state=$(echo $api_response | jq -r '.["workflow_runs"][1]["conclusion"]')
         echo $state
-#        echo $api_response | jq -r '.["workflow_runs"][1]'      
         lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
         time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
         echo $lastrun_timestamp
