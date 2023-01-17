@@ -21,7 +21,7 @@ inputs:
 outputs:
   should_run:
     description: 
-    value: ${{ steps.check_commits.outputs.recent_commit || !steps.check_commits.outputs.recent_workflow_run }}
+    value: ${{ steps.check_commits.outputs.recent_commit && !steps.check_commits.outputs.recent_workflow_run }}
   recent_commit:
     description: 'Returns true if there was a commit within the specified <time-period>, false if there was not'
     value: ${{ steps.check_commits.outputs.recent_commit }}
