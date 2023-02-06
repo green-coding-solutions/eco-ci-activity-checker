@@ -7,53 +7,28 @@ inputs:
   branch:
     description: 'the branch to check'
     required: true
-  time-unit:
-    description: 'The unit of time you are looking back for, i.e. day,week, hour, etc.'
-    required: false
-    default: 'day'
-  time-value:
-    description: 'How far back you are looking'
-    required: false
-    default: '1'
   workflow-id:
     description: 'the id of the workflow. if this is passed, it will also check if this has been run in the <time period>'
-    required: false
+    required: true
 outputs:
   should_run:
     description: 
-    value: ${{ steps.check_commits.outputs.recent_commit && !steps.check_workflow.outputs.recent_workflow_run }}
-  recent_commit:
-    description: 'Returns true if there was a commit within the specified <time-period>, false if there was not'
-    value: ${{ steps.check_commits.outputs.recent_commit }}
-  recent_workflow_run:
-    description: 'Returns true if the specified workflow-id has been succesfully run in the last <time-period>'
-    value: ${{ steps.check_workflow.outputs.recent_workflow_run }}
+    value: ${{ steps.check_if_needs_to_run.outputs.should_run }}
 runs:
   using: 'composite'
   steps:
-    - id: check_commits
-#      continue-on-error: true
-      name: check if there was a commit in the last time period
+    - id: check_if_needs_to_run
+      name: check last workflow run and last commit
       shell: bash
       run: |
-        dateofcommit=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/commits/${{ inputs.branch }} | jq -r '.commit.author.date')
-        commit_timestamp=$(date --date "$dateofcommit" +'%s')
-        time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
-        if [ $commit_timestamp -gt $time_ago ]; then echo "recent_commit=true" >> $GITHUB_OUTPUT; fi
-        if [ $commit_timestamp -lt $time_ago ]; then echo "Workflow skipped as there were no recent commits on this branch." >> $GITHUB_STEP_SUMMARY; fi
-        if [ $commit_timestamp -lt $time_ago ]; then false; fi
-
-    - id: check_workflow
-#      continue-on-error: true
-      if: inputs.workflow-id != ''
-      name: check if workflow had a run in the last time period
-      shell: bash
-      run: |
-        api_response=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/${{ inputs.workflow-id }}/runs)
-        dateoflastrun=$(echo $api_response | jq -r '.["workflow_runs"][1]["run_started_at"]')
-        state=$(echo $api_response | jq -r '.["workflow_runs"][1]["conclusion"]')
+        if [ -z $dateoflastrun ] || [ -z $dateoflastcommit ];
+        then
+        echo "should_run=true" >> $GITHUB_OUTPUT\
+        &&  echo "NULL returned in API call for Activity Checker" >> $GITHUB_STEP_SUMMARY;
+        elif [ $state != 'success' ]; then echo "should_run=true" >> $GITHUB_OUTPUT;
+        else
         lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
-        time_ago=$(date --date '${{ inputs.time-value }} ${{ inputs.time-unit }} ago' +'%s')
-        if [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ]; then echo "recent_workflow_run=true" >> $GITHUB_OUTPUT; fi
-        if [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ]; then echo "Workflow skipped as last run was both recent and a success." >> $GITHUB_STEP_SUMMARY; fi
-        if [ $lastrun_timestamp -gt $time_ago ] && [ $state == 'success' ]; then false; fi
+        commit_timestamp=$(date --date "$dateofcommit" +'%s')
+        if [ $commit_timestamp -gt $lastrun_timestamp ]; then echo "should_run=true" >> $GITHUB_OUTPUT; fi
+        if [ $commit_timestamp -lt $lastrun_timestamp ]; then echo "should_run=false" >> $GITHUB_OUTPUT && echo "Workflow skipped as there were no commits since the last successful workflow run." >> $GITHUB_STEP_SUMMARY; fi
+        fi
