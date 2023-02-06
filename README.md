@@ -15,7 +15,7 @@ These are used for an api call to [`/repos/{owner}/{repo}/commits`](https://docs
 `time-value`: Default: "1"  
 
 These can be used to define how far back you want to look. must be usable as a Unix date call
-`date --date '`time-value` `time-unit` ago'`
+`date --date 'time-value time-unit ago'`
 
 `workflow-id`: Can be used to check if this workflow was run in the last `time-period`.  
 You can get the workflow-id by checking the API endpoint [`/repos/{owner}/{repo}/actions/workflows`](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#list-repository-workflows)
