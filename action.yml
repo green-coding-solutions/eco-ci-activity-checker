@@ -21,6 +21,10 @@ runs:
       name: check last workflow run and last commit
       shell: bash
       run: |
+        api_response=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/${{ inputs.workflow-id }}/runs)
+        dateoflastrun=$(echo $api_response | jq -r '.["workflow_runs"][1]["run_started_at"]')
+        state=$(echo $api_response | jq -r '.["workflow_runs"][1]["conclusion"]')
+        dateoflastcommit=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/commits/${{ inputs.branch }} | jq -r '.commit.author.date')
         if [ -z $dateoflastrun ] || [ -z $dateoflastcommit ];
         then
         echo "should_run=true" >> $GITHUB_OUTPUT\
