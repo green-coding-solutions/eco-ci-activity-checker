@@ -1,5 +1,5 @@
 name: 'Eco CI Activity Checker'
-description: 'check if there has been a commit in the specificed repo/branch within the specified time period and write to github output'
+description: 'check if there has been a commit in the specificed repo/branch since the last workflow run and write to github output'
 inputs:
   repo:
     description: 'format: {repo-owner}/{repo-name}'
@@ -8,7 +8,7 @@ inputs:
     description: 'the branch to check'
     required: true
   workflow-id:
-    description: 'the id of the workflow. if this is passed, it will also check if this has been run in the <time period>'
+    description: 'the id of the workflow'
     required: true
 outputs:
   should_run:
