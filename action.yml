@@ -25,6 +25,11 @@ runs:
         dateoflastrun=$(echo $api_response | jq -r '.["workflow_runs"][1]["run_started_at"]')
         state=$(echo $api_response | jq -r '.["workflow_runs"][1]["conclusion"]')
         dateoflastcommit=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/commits/${{ inputs.branch }} | jq -r '.commit.author.date')
+        
+        echo "last commit: $dateoflastcommit"
+        echo "last run: $dateoflastrun"
+        echo "state of last run: $state"
+        
         if [ -z $dateoflastrun ] || [ -z $dateoflastcommit ];
         then
         echo "should_run=true" >> $GITHUB_OUTPUT\
@@ -32,7 +37,7 @@ runs:
         elif [ $state != 'success' ]; then echo "should_run=true" >> $GITHUB_OUTPUT;
         else
         lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
-        commit_timestamp=$(date --date "$dateofcommit" +'%s')
+        commit_timestamp=$(date --date "$dateoflastcommit" +'%s')
         if [ $commit_timestamp -gt $lastrun_timestamp ]; then echo "should_run=true" >> $GITHUB_OUTPUT; fi
         if [ $commit_timestamp -lt $lastrun_timestamp ]; then echo "should_run=false" >> $GITHUB_OUTPUT && echo "Workflow skipped as there were no commits since the last successful workflow run." >> $GITHUB_STEP_SUMMARY; fi
         fi
