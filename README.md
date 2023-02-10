@@ -34,7 +34,7 @@ jobs:
         with:
           repo: 'green-coding-berlin/green-metrics-tool'
           branch: 'main'
-          workflow-id: 45267392
+          workflow-id: YOUR_WORKFLOW_ID
 
   run-tests-main:
     needs: check_date
