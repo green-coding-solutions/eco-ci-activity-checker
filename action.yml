@@ -39,5 +39,5 @@ runs:
         lastrun_timestamp=$(date --date "$dateoflastrun" +'%s')
         commit_timestamp=$(date --date "$dateoflastcommit" +'%s')
         if [ $commit_timestamp -gt $lastrun_timestamp ]; then echo "should_run=true" >> $GITHUB_OUTPUT; fi
-        if [ $commit_timestamp -lt $lastrun_timestamp ]; then echo "should_run=false" >> $GITHUB_OUTPUT && echo "Workflow skipped as there were no commits since the last successful workflow run." >> $GITHUB_STEP_SUMMARY; fi
+        if [ $commit_timestamp -lt $lastrun_timestamp ]; then echo "should_run=false" >> $GITHUB_OUTPUT && echo "Workflow on ${{ inputs.repo }} and branch ${{ inputs.branch }} had no recent commits." >> $GITHUB_STEP_SUMMARY; fi
         fi
