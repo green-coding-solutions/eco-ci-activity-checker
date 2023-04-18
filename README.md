@@ -9,6 +9,7 @@ This is a Github Action for checking whether a workflow needs to be run based on
 #### Optional inputs
 `repo`: 'format: {repo-owner}/{repo-name}'. Defaults to: ${{ github.repository }}
 `branch`: 'branch name to check'. Defaults to: ${{ github.ref_name }}
+`workflow-id`: if you are checking for workflow runs other than the current workflow, you can pass in the workflow id. By default will check for the workflow this is called from
 `personal-access-token:`: If used with a private repository, you need to create a personal access token and with repository read access and pass it along. This is needed in order to make the necessary API calls to check the for recent commits.
 
 #### Outputs:

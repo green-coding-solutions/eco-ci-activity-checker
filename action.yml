@@ -13,6 +13,10 @@ inputs:
     description: 'personal access token with repo scope, if using with a private repository'
     default: ${{ github.token }}
     required: false
+  workflow-id:
+    description: 'the id of the workflow to check'
+    required: false
+    default: null
 
 outputs:
   should_run:
@@ -25,9 +29,12 @@ runs:
       name: check last workflow run and last commit
       shell: bash
       run: |
-        workflows_response=$(curl -s -H "Authorization: Bearer ${{ github.token }}" ${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows)
-        workflow_id=$(echo $workflows_response | jq '.workflows[] | select(.name == "${{ github.workflow }}") | .id')
-
+        workflow_id="${{ inputs.workflow-id }}"
+        if [[ $workflow_id == '' ]]; then
+            workflows_response=$(curl -s -H "Authorization: Bearer ${{ github.token }}" ${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows)
+            workflow_id=$(echo $workflows_response | jq '.workflows[] | select(.name == "${{ github.workflow }}") | .id')
+        fi
+        
         workflow_runs_response=$(curl -s -H "Authorization: Bearer ${{ github.token }}" https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/$workflow_id/runs)
         dateoflastrun=$(echo $workflow_runs_response | jq -r '.["workflow_runs"][1]["run_started_at"]')
         state=$(echo $workflow_runs_response | jq -r '.["workflow_runs"][1]["conclusion"]')
@@ -38,8 +45,7 @@ runs:
         echo "last run: $dateoflastrun"
         echo "state of last run: $state"
         
-        if [ -z $dateoflastrun ] || [ -z $dateoflastcommit ];
-        then
+        if [ -z $dateoflastrun ] || [ -z $dateoflastcommit ];then
         echo "should_run=true" >> $GITHUB_OUTPUT\
         &&  echo "NULL returned in API call for Activity Checker" >> $GITHUB_STEP_SUMMARY;
         elif [ $state != 'success' ]; then echo "should_run=true" >> $GITHUB_OUTPUT;
