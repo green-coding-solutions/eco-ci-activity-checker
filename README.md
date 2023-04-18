@@ -6,12 +6,10 @@ This is a Github Action for checking whether a workflow needs to be run based on
 - If the last workflow run was a success, but the branch had no commits since that date, then it sets should_run == false  
 - If the last workflow run was a success, and the branch has had commits since, then it sets should_run == true
 
-#### Required inputs
-`repo`: 'format: {repo-owner}/{repo-name}'  
-`branch`: 'branch name to check'  
-`workflow-id`: The id of the workflow this action is used in. You can get the workflow-id by checking the API endpoint [`/repos/{owner}/{repo}/actions/workflows`](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#list-repository-workflows).
-
-These are used for api calls to get last workflow run and recent commits.
+#### Optional inputs
+`repo`: 'format: {repo-owner}/{repo-name}'. Defaults to: ${{ github.repository }}
+`branch`: 'branch name to check'. Defaults to: ${{ github.ref_name }}
+`personal-access-token:`: If used with a private repository, you need to create a personal access token and with repository read access and pass it along. This is needed in order to make the necessary API calls to check the for recent commits.
 
 #### Outputs:
 `should_run`: set to true or false based on the logic described above.
@@ -28,10 +26,6 @@ jobs:
     steps:
       - id: check_main_commits
         uses: green-coding-berlin/eco-ci-activity-checker@main
-        with:
-          repo: 'green-coding-berlin/green-metrics-tool'
-          branch: 'main'
-          workflow-id: YOUR_WORKFLOW_ID
 
   run-tests-main:
     needs: check_date
@@ -46,3 +40,23 @@ jobs:
       - name: 'Setup, Run, and Teardown Tests'
         uses: ./.github/actions/gmt-pytest
 ```
+
+## Note on private repos
+ If you are running in a private repo, you must give your job actions read abilities for the github token. This  is because we make an api call to get your workflow_id which uses your $GITHUB_TOKEN, and it needs the correct permissions to do so. You also need to create a personal access token with read permissions for your repository and pass it in:
+
+ ``` yaml
+jobs:
+  check_date:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+    name: Check latest commit
+    outputs:
+      should_run: ${{ steps.check_main_commits.outputs.recent_commit }}
+    steps:
+      - id: check_main_commits
+        uses: green-coding-berlin/eco-ci-activity-checker@main
+        with:
+            personal-access-token: <your personal access token>
+
+ ```  

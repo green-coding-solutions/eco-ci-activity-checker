@@ -3,13 +3,17 @@ description: 'check if there has been a commit in the specificed repo/branch sin
 inputs:
   repo:
     description: 'format: {repo-owner}/{repo-name}'
-    required: true
+    default: ${{ github.repository }}
+    required: false
   branch:
     description: 'the branch to check'
-    required: true
-  workflow-id:
-    description: 'the id of the workflow'
-    required: true
+    default: ${{ github.ref_name }}
+    required: false
+  personal-access-token:
+    description: 'personal access token with repo scope, if using with a private repository'
+    default: ${{ github.token }}
+    required: false
+
 outputs:
   should_run:
     description: 
@@ -21,11 +25,15 @@ runs:
       name: check last workflow run and last commit
       shell: bash
       run: |
-        api_response=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/${{ inputs.workflow-id }}/runs)
-        dateoflastrun=$(echo $api_response | jq -r '.["workflow_runs"][1]["run_started_at"]')
-        state=$(echo $api_response | jq -r '.["workflow_runs"][1]["conclusion"]')
-        dateoflastcommit=$(curl -s https://api.github.com/repos/${{ inputs.repo }}/commits/${{ inputs.branch }} | jq -r '.commit.author.date')
-        
+        workflows_response=$(curl -s -H "Authorization: Bearer ${{ github.token }}" ${{ github.api_url }}/repos/${{ github.repository }}/actions/workflows)
+        workflow_id=$(echo $workflows_response | jq '.workflows[] | select(.name == "${{ github.workflow }}") | .id')
+
+        workflow_runs_response=$(curl -s -H "Authorization: Bearer ${{ github.token }}" https://api.github.com/repos/${{ inputs.repo }}/actions/workflows/$workflow_id/runs)
+        dateoflastrun=$(echo $workflow_runs_response | jq -r '.["workflow_runs"][1]["run_started_at"]')
+        state=$(echo $workflow_runs_response | jq -r '.["workflow_runs"][1]["conclusion"]')
+        commits_response=$(curl -s -H "Authorization: Bearer ${{ inputs.personal-access-token }}" https://api.github.com/repos/${{ inputs.repo }}/commits/${{ inputs.branch }})
+        dateoflastcommit=$(echo $commits_response | jq -r '.commit.author.date')
+
         echo "last commit: $dateoflastcommit"
         echo "last run: $dateoflastrun"
         echo "state of last run: $state"
