@@ -53,7 +53,7 @@ jobs:
       actions: read
     name: Check latest commit
     outputs:
-      should_run: ${{ steps.check_main_commits.outputs.recent_commit }}
+      should_run: ${{ steps.check_main_commits.outputs.should_run }}
     steps:
       - id: check_main_commits
         uses: green-coding-berlin/eco-ci-activity-checker@main
